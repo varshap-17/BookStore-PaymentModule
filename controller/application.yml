@@ -1,0 +1,69 @@
+spring:
+  application:
+    name: Gateway-Module
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+      routes:
+        - id: UserModule
+          uri: lb://User-Module
+          predicates:
+            - Path=/UserData/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: UserModule
+                fallbackuri: forward:/userFallBack
+        - id: BookModule
+          uri: lb://Book-Module
+          predicates:
+            - Path=/BookData/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: BookModule
+                fallbackuri: forward:/bookFallBack
+        - id: CartModule
+          uri: lb://Cart-Module
+          predicates:
+            - Path=/cartData/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: CartModule
+                fallbackuri: forward:/cartFallBack
+        - id: OrderModule
+          uri: lb://Order-Module
+          predicates:
+            - Path=/OrderData/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: OrderModule
+                fallbackuri: forward:/orderFallBack
+        - id: PaymentModule
+          uri: lb://Payment-Module
+          predicates:
+            - Path=/Pay/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: PaymentModule
+                fallbackuri: forward:/paymentFallBack
+server:
+  port: 8989
+management:
+  endpoints:
+    web:
+      exposure:
+        include: hystrix.stream
+hystrix:
+  command:
+    fallbackcmd:
+      execution:
+        isolation:
+          thread:
+            timeoutMilliseconds: 5000
+
